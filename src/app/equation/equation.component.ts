@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { MathValidators } from '../math-validators';
+import { delay, filter } from 'Rxjs/operators';
 
 @Component({
   selector: 'app-equation',
@@ -27,15 +28,18 @@ export class EquationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.mathForm.statusChanges.subscribe((value) => {
-      if (value === 'INVALID') return;
-
-      this.mathForm.setValue({
-        a: this.randomNumber(),
-        b: this.randomNumber(),
-        answer: ''
-      })
-    });
+    this.mathForm.statusChanges
+      .pipe(
+        filter((value) => value === 'VALID'),
+        delay(200)
+      )
+      .subscribe(() => {
+        this.mathForm.setValue({
+          a: this.randomNumber(),
+          b: this.randomNumber(),
+          answer: '',
+        });
+      });
   }
 
   randomNumber() {
